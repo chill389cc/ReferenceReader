@@ -4,38 +4,14 @@
 #include <algorithm>
 #include <cctype>
 #include <vector>
-#include <regex>
 
 using namespace std;
-
-// baseurl + work + book + chapter + verse
-const regex regexp(
-        "(?:\\d\\s*)?[A-Z\\]?[a-z&]+\\s*\\d+(?:[:-]\\d+)?(?:\\s*-\\s*\\d+)?(?::\\d+|(?:\\s*[A-Z]?[a-z]+\\s*\\d+:\\d+))?");
 
 const static string INPUT_FILE = "input.txt";
 const static string OUTPUT_FILE = "viewHTML.html";
 
-//FIXME remove this useless but debugging function
-void PrintInputStream(istream &readStream) {
-  string temp;
-  getline(readStream, temp);
-  while (!readStream.fail()) {
-    cout << temp << endl;
-    getline(readStream, temp);
-  }
-}
-
-//FIXME move the definition of this function to the bottom and leave a prototype here
-string FindReferenceInString(string lineToRead) {
-  string temp = lineToRead;
-  smatch m;
-  regex_search(lineToRead, m, regexp);
-  for (auto x: m)
-    cout << x << " ";
-  return "";
-}
-
 const vector<vector<string> > OTHER_NAMES = {
+        // todo make these all arrays of strings instead of strings, and modify the code to check for a match in the array instead of an exact match of the string.
         {"genesis", "exodus",  "leviticus",            "numbers",              "deuteronomy", "joshua", "judges",          "ruth",          "1 samuel",  "2 samuel",  "1 kings",     "2 kings",    "1 chronicles",    "2 chronicles",    "ezra",      "nehemiah",  "esther", "job",      "psalms",  "proverbs", "ecclesiastes", "song of solomon", "isaiah", "jeremiah", "lamentations", "ezekiel", "daniel", "hosea", "joel", "amos", "obadiah", "jonah", "micah", "nahum", "habakkuk", "zephaniah", "haggai", "zechariah", "malachi"},
         {"matthew", "mark",    "luke",                 "john",                 "acts",        "romans", "1 corinthians",   "2 corinthians", "galatians", "ephesians", "philippians", "colossians", "1 thessalonians", "2 thessalonians", "1 timothy", "2 timothy", "titus",  "philemon", "hebrews", "james",    "1 peter",      "2 peter",         "1 john", "2 john",   "3 john",       "jude",    "revelations"},
         {"1 nephi", "2 nephi", "jacob",                "enos",                 "jarom",       "omni",   "words of mormon", "mosiah",        "alma",      "helaman",   "3 nephi",     "4 nephi",    "mormon",          "ether",           "moroni"},
@@ -54,6 +30,7 @@ const string SITE_WORK_NAMES[5] = {
 };
 const string scripBaseURL = "https://www.churchofjesuschrist.org/study/scriptures/";
 
+// baseurl + work + book + chapter + verse
 string generateURL(int work, int book, int chapter, int verse, int verse2 = -1) {
   return scripBaseURL + SITE_WORK_NAMES[work] + "/" + SITE_BOOK_NAMES[work][book] + "/" + to_string(chapter) +
          "?lang=eng&id=" + to_string(verse) + (verse2 != -1 ? ("-" + to_string(verse2)) : "") + "#p" + (verse > 1 ? to_string(verse-1) : to_string(verse));
@@ -136,6 +113,7 @@ vector<string> FindReferencesInInputStream(istream &readStream) {
   getline(readStream, currentLine);
   string temp;
   while (!readStream.fail()) {
+    // todo make this iterate through the words, passing in the rest of the line as the input.
     temp += decodeReference(currentLine);
     getline(readStream, currentLine);
   }
